@@ -16,6 +16,7 @@
 
 package com.pedro.library.base;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Point;
 import android.hardware.Camera;
@@ -78,6 +79,7 @@ import java.util.List;
  * Created by pedro on 7/07/17.
  */
 
+@SuppressLint("NewApi")
 public abstract class Camera1Base {
 
   private static final String TAG = "Camera1Base";
@@ -514,7 +516,24 @@ public abstract class Camera1Base {
       // that you want start with front or back camera
       cameraManager.setCameraFacing(cameraFacing);
     } else {
-      Log.e(TAG, "Streaming or preview started, ignored");
+      previewWidth = width;
+      previewHeight = height;
+      videoEncoder.setFps(fps);
+      videoEncoder.setRotation(rotation);
+      if (glInterface != null && Build.VERSION.SDK_INT >= 18) {
+        if (videoEncoder.getRotation() == 90 || videoEncoder.getRotation() == 270) {
+          glInterface.setEncoderSize(height, width);
+        } else {
+          glInterface.setEncoderSize(width, height);
+        }
+        glInterface.setRotation(0);
+        glInterface.setFps(fps);
+        glInterface.start();
+        cameraManager.setSurfaceTexture(glInterface.getSurfaceTexture());
+      }
+      cameraManager.setRotation(rotation);
+      cameraManager.start(cameraFacing, width, height, videoEncoder.getFps());
+      onPreview = true;
     }
   }
 
@@ -553,7 +572,24 @@ public abstract class Camera1Base {
       // that you want start with front or back camera
       cameraManager.setCameraSelect(cameraId);
     } else {
-      Log.e(TAG, "Streaming or preview started, ignored");
+      previewWidth = width;
+      previewHeight = height;
+      videoEncoder.setFps(fps);
+      videoEncoder.setRotation(rotation);
+      if (glInterface != null && Build.VERSION.SDK_INT >= 18) {
+        if (videoEncoder.getRotation() == 90 || videoEncoder.getRotation() == 270) {
+          glInterface.setEncoderSize(height, width);
+        } else {
+          glInterface.setEncoderSize(width, height);
+        }
+        glInterface.setRotation(0);
+        glInterface.setFps(fps);
+        glInterface.start();
+        cameraManager.setSurfaceTexture(glInterface.getSurfaceTexture());
+      }
+      cameraManager.setRotation(rotation);
+      cameraManager.start(cameraId, width, height, videoEncoder.getFps());
+      onPreview = true;
     }
   }
 
